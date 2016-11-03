@@ -380,6 +380,24 @@ sub color {
 		}
 		# fall-through to color palettes
 	}
+	if (defined $type and $type eq "ofrobots") {
+		if ($name =~ /^LazyCompile:\*/) {		# Optimized JS
+			$type = "green";
+		} elsif ($name =~ m/^LazyCompile:~/) { # Unoptimized JS
+			$type = "aqua";
+		} elsif ($name =~ m/^BytecodeHandler:/ or $name =~ m/InterpreterEntryTrampoline/) {
+			$type = "yellow";
+		} elsif ($name =~ m/:/) {	# JavaScript (match ":" in Builtin, Stub, ...)
+			$type = "orange";
+		} elsif ($name =~ m/^_ZN4node/) { # node
+		  $type = "blue";
+		} elsif ($name =~ m/^_ZN2v8/) { # uv
+		  $type = "purple";
+		} else {			# system
+			$type = "red";
+		}
+		# fall-through to color palettes
+	}
 	if (defined $type and $type eq "wakeup") {
 		$type = "aqua";
 		# fall-through to color palettes
@@ -430,6 +448,7 @@ sub color {
 		my $g = 90 + int(65 * $v1);
 		return "rgb($r,$g,0)";
 	}
+
 
 	return "rgb(0,0,0)";
 }
@@ -651,8 +670,8 @@ my $inc = <<INC;
 <script type="text/ecmascript">
 <![CDATA[
 	var details, searchbtn, matchedtxt, svg;
-	function init(evt) { 
-		details = document.getElementById("details").firstChild; 
+	function init(evt) {
+		details = document.getElementById("details").firstChild;
 		searchbtn = document.getElementById("search");
 		matchedtxt = document.getElementById("matched");
 		svg = document.getElementsByTagName("svg")[0];
@@ -712,20 +731,20 @@ my $inc = <<INC;
 		var w = parseFloat(r.attributes["width"].value) -3;
 		var txt = find_child(e, "title").textContent.replace(/\\([^(]*\\)\$/,"");
 		t.attributes["x"].value = parseFloat(r.attributes["x"].value) +3;
-		
+
 		// Smaller than this size won't fit anything
 		if (w < 2*$fontsize*$fontwidth) {
 			t.textContent = "";
 			return;
 		}
-		
+
 		t.textContent = txt;
 		// Fit in full text width
 		if (/^ *\$/.test(txt) || t.getSubStringLength(0, txt.length) < w)
 			return;
-		
+
 		for (var x=txt.length-2; x>0; x--) {
-			if (t.getSubStringLength(0, x+2) <= w) { 
+			if (t.getSubStringLength(0, x+2) <= w) {
 				t.textContent = txt.substring(0,x) + "..";
 				return;
 			}
@@ -756,7 +775,7 @@ my $inc = <<INC;
 				e.attributes["width"].value = parseFloat(e.attributes["width"].value) * ratio;
 			}
 		}
-		
+
 		if (e.childNodes == undefined) return;
 		for(var i=0, c=e.childNodes; i<c.length; i++) {
 			zoom_child(c[i], x-$xpad, ratio);
@@ -778,20 +797,20 @@ my $inc = <<INC;
 			zoom_parent(c[i]);
 		}
 	}
-	function zoom(node) { 
+	function zoom(node) {
 		var attr = find_child(node, "rect").attributes;
 		var width = parseFloat(attr["width"].value);
 		var xmin = parseFloat(attr["x"].value);
 		var xmax = parseFloat(xmin + width);
 		var ymin = parseFloat(attr["y"].value);
 		var ratio = (svg.width.baseVal.value - 2*$xpad) / width;
-		
+
 		// XXX: Workaround for JavaScript float issues (fix me)
 		var fudge = 0.0001;
-		
+
 		var unzoombtn = document.getElementById("unzoom");
 		unzoombtn.style["opacity"] = "1.0";
-		
+
 		var el = document.getElementsByTagName("g");
 		for(var i=0;i<el.length;i++){
 			var e = el[i];
@@ -833,7 +852,7 @@ my $inc = <<INC;
 	function unzoom() {
 		var unzoombtn = document.getElementById("unzoom");
 		unzoombtn.style["opacity"] = "0.0";
-		
+
 		var el = document.getElementsByTagName("g");
 		for(i=0;i<el.length;i++) {
 			el[i].style["display"] = "block";
@@ -841,7 +860,7 @@ my $inc = <<INC;
 			zoom_reset(el[i]);
 			update_text(el[i]);
 		}
-	}	
+	}
 
 	// search
 	function reset_search() {
